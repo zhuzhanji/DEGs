@@ -101,11 +101,6 @@ rownames(res) = gene_name
 signif = which(res$padj<0.05)
 deg = res[signif,]
 
-# deg['ERBB2',] overexpression 14th
-# deg['CD244',] 
-# deg['PARVA',]
-deg['EME1',]
-deg['NTS',]
 
 # Separate them 
 dup = deg[deg[,2]>0.,]
