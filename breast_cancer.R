@@ -2,14 +2,12 @@ path = "~/Documents/cellbiology/brca_tcga_pan_can_atlas_2018"
 
 data_patient  = read.delim(paste(path, "data_clinical_patient.txt", sep = "/"))
 
-# Inspect Clinical File.
-
-# Examine Age
-
 data_Rnaseq = read.delim(paste(path, "data_mrna_seq_v2_rsem.txt", sep = "/"))
 
 data_cna = read.delim(paste(path, "data_cna.txt", sep = "/"))
 rowerb = which(data_cna[,1]=="ERBB2")
+# inspect cna data
+hist(as.numeric(data_cna[rowerb,-c(1,2)]))
 
 # Cols 1 and 2 are gene names.
 assay = as.matrix(data_Rnaseq[,-c(1,2)])
@@ -119,6 +117,7 @@ dup <- dup[order(dup$log2FoldChange,decreasing = TRUE),]
 dup_highmean = dup[dup$baseMean > 1000,]
 dup_highmean[dup_highmean$log2FoldChange > 2,]
 
+# rank genes by the mean of log fold change and p-value
 rank_by_fc_pj <- function(dup){
   df <- as.data.frame(dup)
   df['rank_fc'] = c(1: nrow(df))
@@ -149,16 +148,13 @@ df_down <- rank_by_fc_pj(ddown)
 entrez_all = data_Rnaseq[keep,2][signif]
 entrez_up = data_Rnaseq[keep,2][signif[deg[,2]>0.]]
 entrez_down = data_Rnaseq[keep,2][signif[deg[,2]<0.]]
-# Pathway Enrichment
-
-#BiocManager::install("clusterProfiler")
 
 library(clusterProfiler)
 
-# Do a KEGG pathway over-representation analysis
-
+# KEGG pathway over-representation analysis
 all_paths =   enrichKEGG(gene = entrez_all, organism = 'hsa', pvalueCutoff = 0.05)
 
+#function for gseKEGG
 enrich_gse <- function(deg, entrez){
   kegg_gene_list <- deg$log2FoldChange
   names(kegg_gene_list) <- entrez
@@ -166,7 +162,7 @@ enrich_gse <- function(deg, entrez){
   all_2 =   gseKEGG(geneList = kegg_gene_list, organism = 'hsa', pvalueCutoff = 0.05)
   return(all_2)
 }
-
+# transform to data_frame
 display_enrich_result <- function(all_paths_2)
 {
   df <- as.data.frame(all_paths_2)
@@ -175,10 +171,11 @@ display_enrich_result <- function(all_paths_2)
 all_paths_2 <- NULL
 all_paths_2 <- enrich_gse(deg, entrez_all)
 df_2 <- display_enrich_result(all_paths_2)
-
+#for display
 df <- display_enrich_result(all_paths)
 df_display <- df[,-c(3,6,7,9)]
 
+#parse all the genes in hsa04310
 coreenrich = df['hsa04310','geneID']
 enrichlist = strsplit(coreenrich, "/")[1]
 enrich_info = matrix(0, length(enrichlist[[1]]) , 3)
@@ -194,18 +191,10 @@ for(i in enrichlist[[1]] )
   j = j + 1
 
 }
-
+# sort by absolute log fold change
 enrich_info_wnt <- as.data.frame(enrich_info)
 enrich_info_wnt <- enrich_info_wnt[order(abs(as.numeric(enrich_info_wnt$V3)),decreasing = TRUE),]
 colnames(enrich_info_wnt) <- c('ID', 'Name', 'LogFoldchange')
-# Optionally you can divide between up and down.
-# Both options are Ok for the assignment.
-
-up_paths = enrichKEGG(gene = entrez_up, organism = 'hsa', pvalueCutoff = 0.05)
-df_up_paths = display_enrich_result(up_paths)
-
-down_paths = enrichKEGG(gene = entrez_down, organism = 'hsa', pvalueCutoff = 0.05)
-df_down_paths = display_enrich_result(down_paths)
 
 # ----------------------------------------PCA------------------------------------------------#
 
