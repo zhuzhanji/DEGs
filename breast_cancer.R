@@ -9,8 +9,12 @@ rowerb = which(data_cna[,1]=="ERBB2")
 # inspect cna data
 hist(as.numeric(data_cna[rowerb,-c(1,2)]))
 
+rna_cna_id = which(is.element(colnames(data_Rnaseq[,-c(1,2)]), colnames(data_cna[,-c(1,2)])))
+# select only the rna cases which have cna data.
+rna_cna_sub = data_Rnaseq[,2+rna_cna_id]
+
 # Cols 1 and 2 are gene names.
-assay = as.matrix(data_Rnaseq[,-c(1,2)])
+assay = as.matrix(rna_cna_sub)
 
 # Build metadata.
 dim(assay)
