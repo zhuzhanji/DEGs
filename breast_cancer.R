@@ -44,6 +44,12 @@ for (i in 1:dim(assay)[2]){
 metadata[is.na(metadata)] =0
 colnames(metadata) = "Amplify"
 
+# inspect ERBB2 amplification distribution
+h = hist(as.numeric(metadata[,1]),plot = FALSE)
+plot(h, xaxt = 'n', xlim = c(0,1.2),ylim= c(0,800), xlab = NULL, ylab = 'Count', main = NULL)
+text(h$mids, h$counts + 20, ifelse(h$counts == 0, "", h$counts))
+axis(side=1, at=seq(0, 1, 1), labels=c('ERBB2 Not Amplified','ERBB2 Amplified'))
+
 library(DESeq2)
 # Build DESeq Object
 
