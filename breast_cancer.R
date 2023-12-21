@@ -38,7 +38,7 @@ for (i in 1:dim(assay)[2]){
     next
   }
   
-  metadata[i,1] = 1*(as.numeric(data_cna[rowerb,idx] > 0))
+  metadata[i,1] = 1*(as.numeric(data_cna[rowerb,idx]))
 }
 
 metadata[is.na(metadata)] =0
