@@ -44,6 +44,13 @@ for (i in 1:dim(assay)[2]){
 metadata[is.na(metadata)] =0
 colnames(metadata) = "Amplify"
 
+# inspect copy number distribution
+h = hist(as.numeric(metadata[,1]),plot = FALSE)
+plot(h, xaxt = 'n', xlim = c(-2,2.2),ylim= c(0,800), xlab = 'Copy-number', ylab = 'Count', main = NULL)
+text(h$mids, h$counts + 20, ifelse(h$counts == 0, "", h$counts))
+axis(side=1, at=seq(-2, 2, 1), labels=c('-2','-1','0','1','2'))
+
+metadata[i,1] = 1*(as.numeric(data_cna[rowerb,idx] > 0))
 # inspect ERBB2 amplification distribution
 h = hist(as.numeric(metadata[,1]),plot = FALSE)
 plot(h, xaxt = 'n', xlim = c(0,1.2),ylim= c(0,800), xlab = NULL, ylab = 'Count', main = NULL)
